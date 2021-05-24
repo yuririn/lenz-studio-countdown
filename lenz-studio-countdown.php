@@ -24,7 +24,7 @@ function lz_redirect() {
 	$end_date = strtotime( get_option( 'lzcd-date' ) );
 	$now      = strtotime( gmdate( "Y-m-d H:i:s" ) );
 	global $post;
-	if ( has_shortcode( $post->post_content, 'show_timer' ) && $end_date >= $now) {
+	if ( has_shortcode( $post->post_content, 'show_timer' ) && $end_date <= $now) {
 		wp_redirect( esc_html( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ) );
 		exit;
 	}
