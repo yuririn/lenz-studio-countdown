@@ -3,11 +3,11 @@
  * Plugin Name: LZ Count down timer
  * Description: カウントダウンタイマーです。ショートコードで追加できます。
  * Author: 銀ねこアトリエ
- * Version: 1.12
+ * Version: 1.13
  * Author URI: https://ginneko-atelier.com
  *
  * @package Count Down Timer
- * @version 1.12
+ * @version 1.13
  */
 /*
  * プラグインパス
@@ -361,13 +361,13 @@ function add_lz_count_down_menu_page() {
 		<div id="smart-button-container">
     <div style="text-align: center"><label for="description">メッセージ </label><input type="text" name="descriptionInput" id="description" maxlength="127" value=""></div>
       <p id="descriptionError" style="visibility: hidden; color:red; text-align: center;">Please enter a description</p>
-    <div style="text-align: center"><label for="amount">寄付金額 </label><input name="amountInput" type="number" id="amount" value="" ><span> USD</span></div>
+    <div style="text-align: center"><label for="amount">寄付金額 </label><input name="amountInput" type="number" id="amount" value="" ><span> JPY</span></div>
       <p id="priceLabelError" style="visibility: hidden; color:red; text-align: center;">Please enter a price</p>
     <div id="invoiceidDiv" style="text-align: center; display: none;"><label for="invoiceid"> </label><input name="invoiceid" maxlength="127" type="text" id="invoiceid" value="" ></div>
       <p id="invoiceidError" style="visibility: hidden; color:red; text-align: center;">Please enter an Invoice ID</p>
     <div style="text-align: center; margin-top: 0.625rem;" id="paypal-button-container"></div>
   </div>
-  <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD" data-sdk-integration-source="button-factory"></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=JPY" data-sdk-integration-source="button-factory"></script>
   <script>
   function initPayPalButton() {
     var description = document.querySelector('#smart-button-container #description');
