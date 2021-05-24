@@ -40,6 +40,7 @@ function lz_redirect() {
 function google_font() {
 	$font = array(
 		''                      => '使わない',
+		'Anton'                 => 'Anton',
 		'Montserrat'            => 'Montserrat:wght@600',
 		'Montserrat Alternates' => 'Montserrat+Alternates:wght@600',
 		'Roboto Mono'           => 'Roboto+Mono:wght@600',
@@ -479,28 +480,43 @@ add_filter(
 		<style>
 		.c-timer {
 			margin: 20px auto;
-			max-width: 600px;
+			width: 100%;
 			text-align: center;
 			padding: 15px;
 			background: <?php echo esc_html( get_option( 'lzcd-bg-color' ) ); ?>;
 			color: <?php echo esc_html( get_option( 'lzcd-color' ) ); ?>;
 		}
 		.c-timer__label {
-			font-size: 20px;
+			font-size: 18px;
 			font-weight: bold;
 			color: <?php echo esc_html( get_option( 'lzcd-label-color' ) ); ?>;
 		}
 		.c-timer__main {
 			font-weight: bold;
-			font-size: 20px;
+			font-size: 16px;
 		}
 		.c-timer__main span{
+			margin-right: 5px;
 			text-align: right;
 			display: inline-block;
 			min-width: 1.5em;
-			font-size: 40px;
+			font-size: 24px;
 			color: <?php echo esc_html( get_option( 'lzcd-num-color' ) ); ?>;
 			<?php echo $font_family; ?>
+		}
+		@media screen and (min-width: 768px) {
+			.c-timer {
+				max-width: 600px;
+			}
+			.c-timer__label {
+				font-size: 20px;
+			}
+			.c-timer__main {
+				font-size: 20px;
+			}
+			.c-timer__main span{
+				font-size: 40px;
+			}
 		}
 		</style>
 			<?php
