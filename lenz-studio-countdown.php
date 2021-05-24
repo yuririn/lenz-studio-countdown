@@ -15,8 +15,8 @@
 define( 'CD_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 require CD_PLUGIN_DIR . '/plugin-update-checker.php'; // 「Plugin Update Checker」をインクルード
 $myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
-	'https://github.com/yuririn/lenz-studio-countdown/blob/main/plugin.json',
-	CD_PLUGIN_DIR . '/lenz-studio-countdown.php',
+	'https://github.com/yuririn/lenz-studio-countdown',
+	__FILE__,
 	'lz-countdown-timer'
 );
 
