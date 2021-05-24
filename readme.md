@@ -13,4 +13,4 @@
 | URL| https://ginneko-atelier.com|
 | プラグイン名| LZ Count down timer|
 | package | Count Down Timer|
-| Version| 1.11|
+| Version| 1.12|
