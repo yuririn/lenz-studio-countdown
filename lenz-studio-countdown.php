@@ -15,7 +15,7 @@
 define( 'CD_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 require CD_PLUGIN_DIR . '/plugin-update-checker.php'; // 「Plugin Update Checker」をインクルード
 $myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
-	'https://github.com/yuririn/lenz-studio-countdown/pulugin.json',
+	'https://github.com/yuririn/lenz-studio-countdown/blob/main/plugin.json',
 	CD_PLUGIN_DIR . '/lenz-studio-countdown.php',
 	'lz-countdown-timer'
 );
@@ -26,8 +26,8 @@ $myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
 */
 function lz_redirect() {
 	$end_date = strtotime( get_option( 'lzcd-date' ) );
-	$now      = strtotime( wp_date( 'Y-m-d H:i:s', strtotime( '-1 hour' ) ) );
-	// $now      = strtotime(wp_date(  "Y-m-d H:i:s" ));
+	// $now      = strtotime( wp_date( 'Y-m-d H:i:s', strtotime( '-1 hour' ) ) );
+	$now      = strtotime(wp_date(  "Y-m-d H:i:s" ));
 
 	global $post;
 	if ( has_shortcode( $post->post_content, 'show_timer' ) && $end_date <= $now ) {
