@@ -9,21 +9,25 @@
  * @package Count Down Timer
  * @version 1.0
  */
-
 /*
  * プラグインパス
 */
 define( 'CD_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-add_action( 'template_redirect', 'lz_redirect' );
+require CD_PLUGIN_DIR . '/plugin-update-checker.php'; // 「Plugin Update Checker」をインクルード
+$myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+	'https://github.com/yuririn/lenz-studio-countdown/pulugin.json',
+	CD_PLUGIN_DIR . '/lenz-studio-countdown.php',
+	'lz-countdown-timer'
+);
 
 /*
- * Redirectキャンペーンが終わったらリダイレクト
- * @return void
+* Redirectキャンペーンが終わったらリダイレクト
+* @return void
 */
 function lz_redirect() {
 	$end_date = strtotime( get_option( 'lzcd-date' ) );
-	// $now      = strtotime( wp_date( 'Y-m-d H:i:s', strtotime( '-1 hour' ) ) );
-	$now      = strtotime(wp_date(  "Y-m-d H:i:s" ));
+	$now      = strtotime( wp_date( 'Y-m-d H:i:s', strtotime( '-1 hour' ) ) );
+	// $now      = strtotime(wp_date(  "Y-m-d H:i:s" ));
 
 	global $post;
 	if ( has_shortcode( $post->post_content, 'show_timer' ) && $end_date <= $now ) {
@@ -31,6 +35,7 @@ function lz_redirect() {
 		exit;
 	}
 }
+add_action( 'template_redirect', 'lz_redirect' );
 
 /**
  * Fonts
