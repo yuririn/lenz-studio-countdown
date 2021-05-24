@@ -22,10 +22,12 @@ add_action( 'template_redirect', 'lz_redirect' );
 */
 function lz_redirect() {
 	$end_date = strtotime( get_option( 'lzcd-date' ) );
-	$now      = strtotime( gmdate( "Y-m-d H:i:s" ) );
+	// $now      = strtotime( wp_date( 'Y-m-d H:i:s', strtotime( '-1 hour' ) ) );
+	$now      = strtotime(wp_date(  "Y-m-d H:i:s" ));
+
 	global $post;
-	if ( has_shortcode( $post->post_content, 'show_timer' ) && $end_date <= $now) {
-		wp_redirect( esc_html( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ) );
+	if ( has_shortcode( $post->post_content, 'show_timer' ) && $end_date <= $now ) {
+		wp_redirect( esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ) );
 		exit;
 	}
 }
@@ -279,7 +281,7 @@ function add_lz_count_down_menu_page() {
 									$selected = '';
 								}
 								?>
-									<option name="<?php echo esc_html( $key ); ?>"<?php echo esc_html( $selected ); ?>><?php echo esc_html( $key ); ?></option>
+									<option value="<?php echo esc_html( $key ); ?>"<?php echo esc_html( $selected ); ?>><?php echo esc_html( $key ); ?></option>
 									<?php
 							}
 							?>
@@ -298,7 +300,7 @@ function add_lz_count_down_menu_page() {
 									$selected = '';
 								}
 								?>
-									<option name="<?php echo esc_html( $key ); ?>"<?php echo esc_html( $selected ); ?>><?php echo esc_html( $value ); ?></option>
+									<option value="<?php echo esc_html( $key ); ?>"<?php echo esc_html( $selected ); ?>><?php echo esc_html( $value ); ?></option>
 								<?php
 							}
 							?>
@@ -359,24 +361,42 @@ function add_lz_count_down_menu_page() {
  */
 function lz_show_timer( $atts ) {
 
-	$atts = shortcode_atts(
-		array(
-			'leftdate' => '',
-		),
-		$atts
-	);
+		$value = array(
+			jp       => array(
+				days  => '日',
+				hours => '時間',
+				min   => '分',
+				sec   => '秒',
+			),
+			en_lower => array(
+				days  => 'days',
+				hours => 'hours',
+				min   => 'min',
+				sec   => 'sec',
+			),
+			en_upper => array(
+				days  => 'Days',
+				hours => 'Hours',
+				min   => 'Min',
+				sec   => 'Sec',
+			),
 
-	$tag = '<div class="c-timer">' . "\n";
+		);
+		$unit = $value['jp'];
+		if ( get_option( 'lzcd-unit' ) !== '' ) {
+			$unit = $value[ esc_html( get_option( 'lzcd-unit' ) ) ];
+		}
+		$tag = '<div class="c-timer">' . "\n";
 
-	if ( get_option( 'lzcd-label-first' ) !== '' ) {
-		$tag .= '<p class="c-timer__label" id="label">' . get_option( 'lzcd-label-first' ) . '</p>' . "\n";
-	}
-	$tag .= '<div class="c-timer__main">' . "\n";
-	$tag .= '<span id="days"></span>日<span id="hours"></span>時間<span id="min"></span
->分<span id="sec"></span>秒' . "\n";
-	$tag .= '</div>' . "\n";
-	$tag .= '</div>' . "\n";
-	return $tag;
+		if ( get_option( 'lzcd-label-first' ) !== '' ) {
+			$tag .= '<p class="c-timer__label" id="label">' . get_option( 'lzcd-label-first' ) . '</p>' . "\n";
+		}
+		$tag .= '<div class="c-timer__main">' . "\n";
+		$tag .= '<span id="days"></span>' . $unit['days'] . '<span id="hours"></span>' . esc_html( $unit['hours'] ) . '<span id="min"></span
+>' . esc_html( $unit['min'] ) . '<span id="sec"></span>' . esc_html( $unit['sec'] ) . "\n";
+		$tag .= '</div>' . "\n";
+		$tag .= '</div>' . "\n";
+		return $tag;
 }
 add_shortcode( 'show_timer', 'lz_show_timer' );
 
@@ -389,8 +409,8 @@ add_filter(
 	'wp_footer',
 	function() {
 		global $post;
-		if ( has_shortcode( $post->post_content, 'show_timer' ) && $end_date >= $now) {
-		?>
+		if ( has_shortcode( $post->post_content, 'show_timer' ) && $end_date >= $now ) {
+			?>
 		<script>
 			const goal = new Date("<?php echo get_option( 'lzcd-date' ); ?>");
 			let count;
@@ -429,14 +449,14 @@ add_filter(
 				}
 				?>
 				setTimeout(function(){
-					//location.href= '<?php echo esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ); ?>';
+					location.href= '<?php echo esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ); ?>';
 				},1000);
 			}
 		}
 
 		setCountDown();
 		</script>
-		<?php
+			<?php
 		}
 	}
 );
@@ -444,22 +464,22 @@ add_filter(
 add_filter(
 	'wp_head',
 	function() {
-	global $post;
-	if ( has_shortcode( $post->post_content, 'show_timer' ) ) {
-		$fonts       = google_font();
-		$font_family = '';
-		if ( get_option( 'lzcd-font' ) !== '' ) {
-			?>
+		global $post;
+		if ( has_shortcode( $post->post_content, 'show_timer' ) ) {
+			$fonts       = google_font();
+			$font_family = '';
+			if ( get_option( 'lzcd-font' ) !== '' ) {
+				?>
 			<link rel=preconnect href=https://fonts.gstatic.com>
 			<link href=https://fonts.googleapis.com/css2?family=<?php echo esc_html( $fonts[ get_option( 'lzcd-font' ) ] ); ?>&display=swap rel=stylesheet>
-			<?php
-			$font_family = 'font-family: "' . get_option( 'lzcd-font' ) . '";';
-		}
-		?>
+				<?php
+				$font_family = 'font-family: "' . get_option( 'lzcd-font' ) . '";';
+			}
+			?>
 		<style>
 		.c-timer {
 			margin: 20px auto;
-			max-width: 400px;
+			max-width: 600px;
 			text-align: center;
 			padding: 15px;
 			background: <?php echo esc_html( get_option( 'lzcd-bg-color' ) ); ?>;
@@ -483,7 +503,7 @@ add_filter(
 			<?php echo $font_family; ?>
 		}
 		</style>
-		<?php
-	}
+			<?php
+		}
 	}
 );
