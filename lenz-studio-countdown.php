@@ -214,14 +214,14 @@ add_action(
  * @return void
  */
 function save_data() {
-	if ( ! isset( $_POST['seo_field'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['seo_field'] ) ), 'seo' ) ) {
+	if ( ! isset( $_POST['varified_field'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['varified_field'] ) ), 'varified' ) ) {
 		return false;
 	}
 
 	if ( isset( $_POST['action'] ) && 'save_data' === $_POST['action'] ) {
 		foreach ( $_POST as $key => $value ) {
 			if ( isset( $_POST[ $key ] ) ) {
-				if ( 'action' !== $key || 'page' !== $key ) {
+				if ( 'action' !== $key || 'varified_field' !== $key  || '_wp_http_referer' !== $key ) {
 					update_option( esc_html( $key ), esc_html( $value ) );
 				}
 			} else {
@@ -253,7 +253,7 @@ function add_lz_count_down_menu_page() {
 		</div>
 		<form action="<?php echo esc_url( home_url( 'wp-admin' ) ); ?>/admin.php?page=<?php echo esc_html( $page ); ?>" method="POST" id="saveData">
 		<button class="button-primary lg" data-save="saveBtn">保存する</button>
-		<?php wp_nonce_field( 'seo', 'seo_field' ); ?>
+		<?php wp_nonce_field( 'varified', 'varified_field' ); ?>
 			<section class="section">
 				<table class="form-table" role="presentation">
 					<tr class="row">
