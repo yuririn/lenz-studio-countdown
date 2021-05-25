@@ -3,11 +3,11 @@
  * Plugin Name: LZ Count down timer
  * Description: カウントダウンタイマーです。ショートコードで追加できます。
  * Author: 銀ねこアトリエ
- * Version: 1.13
+ * Version: 1.12.1
  * Author URI: https://ginneko-atelier.com
  *
  * @package Count Down Timer
- * @version 1.13
+ * @version 1.12.1
  */
 /*
  * プラグインパス
@@ -29,7 +29,7 @@ $myUpdateChecker->setBranch( 'main' );
 function lz_redirect() {
 	$end_date = strtotime( get_option( 'lzcd-date' ) );
 	// $now      = strtotime( wp_date( 'Y-m-d H:i:s', strtotime( '-1 hour' ) ) );
-	$now      = strtotime(wp_date(  "Y-m-d H:i:s" ));
+	$now = strtotime( wp_date( 'Y-m-d H:i:s' ) );
 
 	global $post;
 	if ( has_shortcode( $post->post_content, 'show_timer' ) && $end_date <= $now ) {
@@ -214,10 +214,14 @@ add_action(
  * @return void
  */
 function save_data() {
-	if ( isset( $_POST['action'] ) && $_POST['action'] === 'save_data' ) {
+	if ( ! isset( $_POST['seo_field'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['seo_field'] ) ), 'seo' ) ) {
+		return false;
+	}
+
+	if ( isset( $_POST['action'] ) && 'save_data' === $_POST['action'] ) {
 		foreach ( $_POST as $key => $value ) {
 			if ( isset( $_POST[ $key ] ) ) {
-				if ( $key !== 'action' || $key !== 'page' ) {
+				if ( 'action' !== $key || 'page' !== $key ) {
 					update_option( esc_html( $key ), esc_html( $value ) );
 				}
 			} else {
@@ -226,7 +230,7 @@ function save_data() {
 		}
 	}
 
-	echo json_encode( 'Succsess' );
+	echo wp_json_encode( 'Succsess' );
 	die();
 }
 add_action( 'wp_ajax_save_data', 'save_data' );
@@ -249,7 +253,7 @@ function add_lz_count_down_menu_page() {
 		</div>
 		<form action="<?php echo esc_url( home_url( 'wp-admin' ) ); ?>/admin.php?page=<?php echo esc_html( $page ); ?>" method="POST" id="saveData">
 		<button class="button-primary lg" data-save="saveBtn">保存する</button>
-		<input type="hidden" name="ls-count-down1" value="<?php echo esc_html( $page ); ?>">
+		<?php wp_nonce_field( 'seo', 'seo_field' ); ?>
 			<section class="section">
 				<table class="form-table" role="presentation">
 					<tr class="row">
@@ -357,112 +361,111 @@ function add_lz_count_down_menu_page() {
 
 			</section>
 		</form>
-
 		<div id="smart-button-container">
-    <div style="text-align: center"><label for="description">メッセージ </label><input type="text" name="descriptionInput" id="description" maxlength="127" value=""></div>
-      <p id="descriptionError" style="visibility: hidden; color:red; text-align: center;">Please enter a description</p>
-    <div style="text-align: center"><label for="amount">寄付金額 </label><input name="amountInput" type="number" id="amount" value="" ><span> JPY</span></div>
-      <p id="priceLabelError" style="visibility: hidden; color:red; text-align: center;">Please enter a price</p>
-    <div id="invoiceidDiv" style="text-align: center; display: none;"><label for="invoiceid"> </label><input name="invoiceid" maxlength="127" type="text" id="invoiceid" value="" ></div>
-      <p id="invoiceidError" style="visibility: hidden; color:red; text-align: center;">Please enter an Invoice ID</p>
-    <div style="text-align: center; margin-top: 0.625rem;" id="paypal-button-container"></div>
+	<div style="text-align: center"><label for="description">名前 </label><input type="text" name="descriptionInput" id="description" maxlength="127" value=""></div>
+	  <p id="descriptionError" style="visibility: hidden; color:red; text-align: center;">Please enter a description</p>
+	<div style="text-align: center"><label for="amount">寄付金額 </label><input name="amountInput" type="number" id="amount" value="" ><span> JPY</span></div>
+	  <p id="priceLabelError" style="visibility: hidden; color:red; text-align: center;">Please enter a price</p>
+	<div id="invoiceidDiv" style="text-align: center; display: none;"><label for="invoiceid"> </label><input name="invoiceid" maxlength="127" type="text" id="invoiceid" value="" ></div>
+	  <p id="invoiceidError" style="visibility: hidden; color:red; text-align: center;">Please enter an Invoice ID</p>
+	<div style="text-align: center; margin-top: 0.625rem;" id="paypal-button-container"></div>
   </div>
   <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=JPY" data-sdk-integration-source="button-factory"></script>
   <script>
   function initPayPalButton() {
-    var description = document.querySelector('#smart-button-container #description');
-    var amount = document.querySelector('#smart-button-container #amount');
-    var descriptionError = document.querySelector('#smart-button-container #descriptionError');
-    var priceError = document.querySelector('#smart-button-container #priceLabelError');
-    var invoiceid = document.querySelector('#smart-button-container #invoiceid');
-    var invoiceidError = document.querySelector('#smart-button-container #invoiceidError');
-    var invoiceidDiv = document.querySelector('#smart-button-container #invoiceidDiv');
+	var description = document.querySelector('#smart-button-container #description');
+	var amount = document.querySelector('#smart-button-container #amount');
+	var descriptionError = document.querySelector('#smart-button-container #descriptionError');
+	var priceError = document.querySelector('#smart-button-container #priceLabelError');
+	var invoiceid = document.querySelector('#smart-button-container #invoiceid');
+	var invoiceidError = document.querySelector('#smart-button-container #invoiceidError');
+	var invoiceidDiv = document.querySelector('#smart-button-container #invoiceidDiv');
 
-    var elArr = [description, amount];
+	var elArr = [description, amount];
 
-    if (invoiceidDiv.firstChild.innerHTML.length > 1) {
-      invoiceidDiv.style.display = "block";
-    }
+	if (invoiceidDiv.firstChild.innerHTML.length > 1) {
+	  invoiceidDiv.style.display = "block";
+	}
 
-    var purchase_units = [];
-    purchase_units[0] = {};
-    purchase_units[0].amount = {};
+	var purchase_units = [];
+	purchase_units[0] = {};
+	purchase_units[0].amount = {};
 
-    function validate(event) {
-      return event.value.length > 0;
-    }
+	function validate(event) {
+	  return event.value.length > 0;
+	}
 
-    paypal.Buttons({
-      style: {
-        color: 'silver',
-        shape: 'rect',
-        label: 'paypal',
-        layout: 'vertical',
+	paypal.Buttons({
+	  style: {
+		color: 'blue',
+		shape: 'pill',
+		label: 'pay',
+		layout: 'horizontal',
 
-      },
+	  },
 
-      onInit: function (data, actions) {
-        actions.disable();
+	  onInit: function (data, actions) {
+		actions.disable();
 
-        if(invoiceidDiv.style.display === "block") {
-          elArr.push(invoiceid);
-        }
+		if(invoiceidDiv.style.display === "block") {
+		  elArr.push(invoiceid);
+		}
 
-        elArr.forEach(function (item) {
-          item.addEventListener('keyup', function (event) {
-            var result = elArr.every(validate);
-            if (result) {
-              actions.enable();
-            } else {
-              actions.disable();
-            }
-          });
-        });
-      },
+		elArr.forEach(function (item) {
+		  item.addEventListener('keyup', function (event) {
+			var result = elArr.every(validate);
+			if (result) {
+			  actions.enable();
+			} else {
+			  actions.disable();
+			}
+		  });
+		});
+	  },
 
-      onClick: function () {
-        if (description.value.length < 1) {
-          descriptionError.style.visibility = "visible";
-        } else {
-          descriptionError.style.visibility = "hidden";
-        }
+	  onClick: function () {
+		if (description.value.length < 1) {
+		  descriptionError.style.visibility = "visible";
+		} else {
+		  descriptionError.style.visibility = "hidden";
+		}
 
-        if (amount.value.length < 1) {
-          priceError.style.visibility = "visible";
-        } else {
-          priceError.style.visibility = "hidden";
-        }
+		if (amount.value.length < 1) {
+		  priceError.style.visibility = "visible";
+		} else {
+		  priceError.style.visibility = "hidden";
+		}
 
-        if (invoiceid.value.length < 1 && invoiceidDiv.style.display === "block") {
-          invoiceidError.style.visibility = "visible";
-        } else {
-          invoiceidError.style.visibility = "hidden";
-        }
+		if (invoiceid.value.length < 1 && invoiceidDiv.style.display === "block") {
+		  invoiceidError.style.visibility = "visible";
+		} else {
+		  invoiceidError.style.visibility = "hidden";
+		}
 
-        purchase_units[0].description = description.value;
-        purchase_units[0].amount.value = amount.value;
+		purchase_units[0].description = description.value;
+		purchase_units[0].amount.value = amount.value;
 
-        if(invoiceid.value !== '') {
-          purchase_units[0].invoice_id = invoiceid.value;
-        }
-      },
+		if(invoiceid.value !== '') {
+		  purchase_units[0].invoice_id = invoiceid.value;
+		}
+	  },
 
-      createOrder: function (data, actions) {
-        return actions.order.create({
-          purchase_units: purchase_units,
-        });
-      },
+	  createOrder: function (data, actions) {
+		return actions.order.create({
+		  purchase_units: purchase_units,
+		});
+	  },
 
-      onApprove: function (data, actions) {
-        return actions.order.capture().then(function (details) {
-          alert('Transaction completed by ' + details.payer.name.given_name + '!');
-        });
-      },
+	  onApprove: function (data, actions) {
+		return actions.order.capture().then(function (details) {
+		  alert('Transaction completed by ' + details.payer.name.given_name + '!');
+		});
+	  },
 
-      onError: function (err) {
-        console.log(err);
-      }
-    }).render('#paypal-button-container');
+	  onError: function (err) {
+		console.log(err);
+	  }
+	}).render('#paypal-button-container');
   }
   initPayPalButton();
   </script>
@@ -634,6 +637,9 @@ add_filter(
 				font-size: 40px;
 			}
 		}
+			<?php
+			echo esc_html( get_option( 'lzcd-code' ) );
+			?>
 		</style>
 			<?php
 		}
