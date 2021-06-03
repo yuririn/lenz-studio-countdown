@@ -357,7 +357,7 @@ function add_lz_count_down_menu_page() {
 						<th>高度な設定</th>
 						<td>
 							<p>CSSを追加して、デザインを編集できます。</p>
-							<div id="editor" style="min-height: 100px" class="editor"></div>
+							<div id="editor" style="min-height: 200px" class="editor"></div>
 							<textarea name="lzcd-code" style="display:none"><?php echo esc_html( get_option( 'lzcd-code' ) ); ?></textarea>
 						</td>
 					</tr>
