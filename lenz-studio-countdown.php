@@ -3,11 +3,11 @@
  * Plugin Name: LZ Count Down Timer
  * Description: カウントダウンタイマーです。ショートコードで追加できます。
  * Author: 銀ねこアトリエ
- * Version: 1.2.2
+ * Version: 1.2.3
  * Author URI: https://ginneko-atelier.com
  *
  * @package Count Down Timer
- * @version 1.2.2
+ * @version 1.2.3
  */
 /*
  * プラグインパス
@@ -286,7 +286,7 @@ function add_lz_count_down_menu_page() {
 					<tr class="row">
 						<th>リダイレクト先</th>
 						<td>
-							<input type="text" placeholder="example.com/contact/" style="min-width:80%" name="lzcd-redirecturl" value="<?php echo esc_html( get_option( 'lzcd-redirecturl' ) ); ?>">
+							<input type="text" placeholder="https://example.com/contact/" style="min-width:80%" name="lzcd-redirecturl" value="<?php echo esc_html( get_option( 'lzcd-redirecturl' ) ); ?>">
 							<p><small>※ 他ドメインへの遷移はできません。</small></p>
 						</td>
 					</tr>
