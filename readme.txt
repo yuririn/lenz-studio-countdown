@@ -3,8 +3,8 @@ Contributors: Camille
 Tags: Timer
 Requires at least: 5.7
 Tested up to: 5.7.2
-Stable tag: 1.2.2
-Requires PHP: 5.7
+Stable tag:  5.7
+Requires PHP: 7.0
 License: GPLv2 or later
 
 == Description ==
