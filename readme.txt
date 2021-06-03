@@ -18,10 +18,14 @@ You can use it at your own responsibility.
 * Only One timer in your blog.
 * Be redirected to any page When the timer expires.
 
+= GitHub =
+
+https://github.com/yuririn/lenz-studio-countdown
+
 == Installation ==
 
 Upload the LZ Count Down Timer plugin to your blog, activate it.
-Please copy & paste shortcode to a page after setting something.
+Please copy & paste a shortcode to some pages after setting something.
 
 == Screenshots ==
 None
