@@ -10,7 +10,8 @@ License: GPLv2 or later
 == Description ==
 The LZ Count Down Timer plugin can add Count Down Timer any pages in your wordpress!!
 The LZ Count Down Timer plugin is still prototype.
-It has some bugs but you can use it free.
+It may have some bugs but you can use it free.
+You can use it at your own responsibility.
 
 * Start count down timer.
 * Enable to custom design.
