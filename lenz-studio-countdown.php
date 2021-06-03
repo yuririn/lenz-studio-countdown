@@ -1,13 +1,13 @@
 <?php
 /**
- * Plugin Name: LZ Count down timer
+ * Plugin Name: LZ Count Down Timer
  * Description: カウントダウンタイマーです。ショートコードで追加できます。
  * Author: 銀ねこアトリエ
- * Version: 1.12.1
+ * Version: 1.2.1
  * Author URI: https://ginneko-atelier.com
  *
  * @package Count Down Timer
- * @version 1.12.1
+ * @version 1.2.2
  */
 /*
  * プラグインパス
@@ -15,17 +15,18 @@
 
 define( 'CD_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 require 'plugin-update-checker/plugin-update-checker.php'; // 「Plugin Update Checker」をインクルード
-$myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+$my_update_checker = Puc_v4_Factory::buildUpdateChecker(
 	'https://github.com/yuririn/lenz-studio-countdown',
 	__FILE__,
 	'lz-countdown-timer'
 );
-$myUpdateChecker->setBranch( 'main' );
+$my_update_checker->setBranch( 'main' );
 
-/*
-* Redirectキャンペーンが終わったらリダイレクト
-* @return void
-*/
+/**
+ * Redirectキャンペーンが終わったらリダイレクト
+ *
+ * @return void
+ */
 function lz_redirect() {
 	$end_date = strtotime( get_option( 'lzcd-date' ) );
 	// $now      = strtotime( wp_date( 'Y-m-d H:i:s', strtotime( '-1 hour' ) ) );
@@ -33,7 +34,14 @@ function lz_redirect() {
 
 	global $post;
 	if ( has_shortcode( $post->post_content, 'show_timer' ) && $end_date <= $now ) {
-		wp_redirect( esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ) );
+		add_filter(
+			'allowed_redirect_hosts',
+			function( $content ) {
+				return esc_url( get_option( 'lzcd-redirecturl' ) );
+			},
+			10
+		);
+		wp_safe_redirect( esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ) );
 		exit;
 	}
 }
@@ -75,8 +83,11 @@ function lz_count_down_menu_page() {
 }
 add_action( 'admin_menu', 'lz_count_down_menu_page' );
 
-$page = 'lz_count_down_menu_page';
-
+/**
+ * Set value
+ *
+ * @return array
+ */
 function lz_value() {
 	return array(
 		date         => 'lzcd-date',
@@ -90,13 +101,18 @@ function lz_value() {
 		css_code     => 'lzcd-code',
 	);
 }
+
+/**
+ * Timer fonts
+ *
+ * @return array
+ */
 function lz_unit() {
 	return array(
 		jp       => '日本語',
 		en_lower => '英語（小文字）',
 		en_upper => '英語（大文字）',
 	);
-
 }
 
 /**
@@ -172,7 +188,7 @@ add_action(
 			document.execCommand("Copy");
 
 			// コピーをお知らせする
-			alert("ショートコードをコピー : "+ copyTarget.value);
+			alert(copyTarget.value + "\nショートコードをコピーしました！ ");
 		});
 
 	});
@@ -221,7 +237,7 @@ function save_data() {
 	if ( isset( $_POST['action'] ) && 'save_data' === $_POST['action'] ) {
 		foreach ( $_POST as $key => $value ) {
 			if ( isset( $_POST[ $key ] ) ) {
-				if ( 'action' !== $key || 'varified_field' !== $key  || '_wp_http_referer' !== $key ) {
+				if ( 'action' !== $key || 'varified_field' !== $key || '_wp_http_referer' !== $key ) {
 					update_option( esc_html( $key ), esc_html( $value ) );
 				}
 			} else {
@@ -277,7 +293,8 @@ function add_lz_count_down_menu_page() {
 					<tr class="row">
 						<th>リダイレクト先</th>
 						<td>
-							<input type="text" placeholder="https://example.com/contact/" style="min-width:80%" name="lzcd-redirecturl" value="<?php echo esc_html( get_option( 'lzcd-redirecturl' ) ); ?>">
+							<input type="text" placeholder="example.com/contact/" style="min-width:80%" name="lzcd-redirecturl" value="<?php echo esc_html( get_option( 'lzcd-redirecturl' ) ); ?>">
+							<p><small>※ https://は含まず入力してください。</small></p>
 						</td>
 					</tr>
 					<tr class="row">
@@ -361,115 +378,6 @@ function add_lz_count_down_menu_page() {
 
 			</section>
 		</form>
-		<div id="smart-button-container">
-	<div style="text-align: center"><label for="description">名前 </label><input type="text" name="descriptionInput" id="description" maxlength="127" value=""></div>
-	  <p id="descriptionError" style="visibility: hidden; color:red; text-align: center;">Please enter a description</p>
-	<div style="text-align: center"><label for="amount">寄付金額 </label><input name="amountInput" type="number" id="amount" value="" ><span> JPY</span></div>
-	  <p id="priceLabelError" style="visibility: hidden; color:red; text-align: center;">Please enter a price</p>
-	<div id="invoiceidDiv" style="text-align: center; display: none;"><label for="invoiceid"> </label><input name="invoiceid" maxlength="127" type="text" id="invoiceid" value="" ></div>
-	  <p id="invoiceidError" style="visibility: hidden; color:red; text-align: center;">Please enter an Invoice ID</p>
-	<div style="text-align: center; margin-top: 0.625rem;" id="paypal-button-container"></div>
-  </div>
-  <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=JPY" data-sdk-integration-source="button-factory"></script>
-  <script>
-  function initPayPalButton() {
-	var description = document.querySelector('#smart-button-container #description');
-	var amount = document.querySelector('#smart-button-container #amount');
-	var descriptionError = document.querySelector('#smart-button-container #descriptionError');
-	var priceError = document.querySelector('#smart-button-container #priceLabelError');
-	var invoiceid = document.querySelector('#smart-button-container #invoiceid');
-	var invoiceidError = document.querySelector('#smart-button-container #invoiceidError');
-	var invoiceidDiv = document.querySelector('#smart-button-container #invoiceidDiv');
-
-	var elArr = [description, amount];
-
-	if (invoiceidDiv.firstChild.innerHTML.length > 1) {
-	  invoiceidDiv.style.display = "block";
-	}
-
-	var purchase_units = [];
-	purchase_units[0] = {};
-	purchase_units[0].amount = {};
-
-	function validate(event) {
-	  return event.value.length > 0;
-	}
-
-	paypal.Buttons({
-	  style: {
-		color: 'blue',
-		shape: 'pill',
-		label: 'pay',
-		layout: 'horizontal',
-
-	  },
-
-	  onInit: function (data, actions) {
-		actions.disable();
-
-		if(invoiceidDiv.style.display === "block") {
-		  elArr.push(invoiceid);
-		}
-
-		elArr.forEach(function (item) {
-		  item.addEventListener('keyup', function (event) {
-			var result = elArr.every(validate);
-			if (result) {
-			  actions.enable();
-			} else {
-			  actions.disable();
-			}
-		  });
-		});
-	  },
-
-	  onClick: function () {
-		if (description.value.length < 1) {
-		  descriptionError.style.visibility = "visible";
-		} else {
-		  descriptionError.style.visibility = "hidden";
-		}
-
-		if (amount.value.length < 1) {
-		  priceError.style.visibility = "visible";
-		} else {
-		  priceError.style.visibility = "hidden";
-		}
-
-		if (invoiceid.value.length < 1 && invoiceidDiv.style.display === "block") {
-		  invoiceidError.style.visibility = "visible";
-		} else {
-		  invoiceidError.style.visibility = "hidden";
-		}
-
-		purchase_units[0].description = description.value;
-		purchase_units[0].amount.value = amount.value;
-
-		if(invoiceid.value !== '') {
-		  purchase_units[0].invoice_id = invoiceid.value;
-		}
-	  },
-
-	  createOrder: function (data, actions) {
-		return actions.order.create({
-		  purchase_units: purchase_units,
-		});
-	  },
-
-	  onApprove: function (data, actions) {
-		return actions.order.capture().then(function (details) {
-		  alert('Transaction completed by ' + details.payer.name.given_name + '!');
-		});
-	  },
-
-	  onError: function (err) {
-		console.log(err);
-	  }
-	}).render('#paypal-button-container');
-  }
-  initPayPalButton();
-  </script>
-	</div>
 		<?php
 }
 
