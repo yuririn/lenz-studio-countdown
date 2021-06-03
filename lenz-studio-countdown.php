@@ -34,13 +34,6 @@ function lz_redirect() {
 
 	global $post;
 	if ( has_shortcode( $post->post_content, 'show_timer' ) && $end_date <= $now ) {
-		add_filter(
-			'allowed_redirect_hosts',
-			function( $content ) {
-				return esc_url( get_option( 'lzcd-redirecturl' ) );
-			},
-			10
-		);
 		wp_safe_redirect( esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ) );
 		exit;
 	}
@@ -294,7 +287,7 @@ function add_lz_count_down_menu_page() {
 						<th>リダイレクト先</th>
 						<td>
 							<input type="text" placeholder="example.com/contact/" style="min-width:80%" name="lzcd-redirecturl" value="<?php echo esc_html( get_option( 'lzcd-redirecturl' ) ); ?>">
-							<p><small>※ https://は含まず入力してください。</small></p>
+							<p><small>※ 他ドメインへの遷移はできません。</small></p>
 						</td>
 					</tr>
 					<tr class="row">
