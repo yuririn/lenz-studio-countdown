@@ -4,7 +4,7 @@ Tags: Timer
 Requires at least: 5.7
 Tested up to: 5.7.2
 Stable tag:  5.7
-Requires PHP: 7.0
+Requires PHP: 7.4.*
 License: GPLv2 or later
 
 == Description ==
@@ -35,3 +35,7 @@ None
 = 1.2.2 =
 *Release Date - 3 June 2021*
 delete donation button
+
+= 1.2.4 =
+*Release Date - 15 July 2021*
+Upgrade php7.4.*
