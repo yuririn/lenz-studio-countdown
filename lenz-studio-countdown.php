@@ -83,15 +83,15 @@ add_action( 'admin_menu', 'lz_count_down_menu_page' );
  */
 function lz_value() {
 	return array(
-		date         => 'lzcd-date',
-		label        => 'name="lzcd-label-first',
-		redirect_url => 'lzcd-redirecturl',
-		font         => 'lzcd-font',
-		unit         => 'lzcd-unit',
-		num_color    => 'lzcd-num-color',
-		label_color  => 'lzcd-label-color',
-		bg_color     => 'lzcd-bg-color',
-		css_code     => 'lzcd-code',
+		'date'         => 'lzcd-date',
+		'label'        => 'name="lzcd-label-first',
+		'redirect_url' => 'lzcd-redirecturl',
+		'font'         => 'lzcd-font',
+		'unit'         => 'lzcd-unit',
+		'num_color'    => 'lzcd-num-color',
+		'label_color'  => 'lzcd-label-color',
+		'bg_color'     => 'lzcd-bg-color',
+		'css_code'     => 'lzcd-code',
 	);
 }
 
