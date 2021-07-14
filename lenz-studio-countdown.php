@@ -287,7 +287,7 @@ function add_lz_count_down_menu_page() {
 						<th>リダイレクト先</th>
 						<td>
 							<input type="text" placeholder="https://example.com/contact/" style="min-width:80%" name="lzcd-redirecturl" value="<?php echo esc_html( get_option( 'lzcd-redirecturl' ) ); ?>">
-							<p><small>※ 他ドメインへの遷移はできません。</small></p>
+							<p><small>※ 他ドメインへの遷移はできません。<br>※ リダイレクト先はデフォルトでトップページに設定されています。<br>※ カウントダウンタイマー設置箇所とリダイレクト先が一緒だと無限リダイレクトが起きますので、ご注意ください。</small></p>
 						</td>
 					</tr>
 					<tr class="row">
@@ -363,7 +363,7 @@ function add_lz_count_down_menu_page() {
 					</tr>
 					<tr class="row">
 						<td colspan="2">
-							<p>出力する要素の構造は次の通りです。</p>
+							<p>出力する要素の構造は次の通りです（アンダースコアは1つです）。</p>
 							<p><img src="<?php echo plugin_dir_url( __FILE__ ); ?>/img/countdown.jpg" alt="" width="500px" height=""></p>
 						</td>
 					</tr>
