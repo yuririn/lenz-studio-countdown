@@ -7,7 +7,7 @@
  * Author URI: https://ginneko-atelier.com
  *
  * @package Count Down Timer
- * @version 1.2.3
+ * @version 1.2.4
  */
 /*
  * プラグインパス
@@ -102,9 +102,9 @@ function lz_value() {
  */
 function lz_unit() {
 	return array(
-		jp       => '日本語',
-		en_lower => '英語（小文字）',
-		en_upper => '英語（大文字）',
+		'jp'       => '日本語',
+		'en_lower' => '英語（小文字）',
+		'en_upper' => '英語（大文字）',
 	);
 }
 
@@ -383,23 +383,23 @@ function add_lz_count_down_menu_page() {
 function lz_show_timer( $atts ) {
 
 		$value = array(
-			jp       => array(
-				days  => '日',
-				hours => '時間',
-				min   => '分',
-				sec   => '秒',
+			'jp'       => array(
+				'days'  => '日',
+				'hours' => '時間',
+				'min'   => '分',
+				'sec'   => '秒',
 			),
-			en_lower => array(
-				days  => 'days',
-				hours => 'hours',
-				min   => 'min',
-				sec   => 'sec',
+			'en_lower' => array(
+				'days'  => 'days',
+				'hours' => 'hours',
+				'min'   => 'min',
+				'sec'   => 'sec',
 			),
-			en_upper => array(
-				days  => 'Days',
-				hours => 'Hours',
-				min   => 'Min',
-				sec   => 'Sec',
+			'en_upper' => array(
+				'days'  => 'Days',
+				'hours' => 'Hours',
+				'min'   => 'Min',
+				'sec'   => 'Sec',
 			),
 
 		);
@@ -410,9 +410,9 @@ function lz_show_timer( $atts ) {
 		$tag = '<div class="c-timer">' . "\n";
 
 		if ( get_option( 'lzcd-label-first' ) !== '' ) {
-			$tag .= '<p class="c-timer__label" id="label">' . get_option( 'lzcd-label-first' ) . '</p>' . "\n";
+			$tag .= '<p class="c-timer_label" id="label">' . get_option( 'lzcd-label-first' ) . '</p>' . "\n";
 		}
-		$tag .= '<div class="c-timer__main">' . "\n";
+		$tag .= '<div class="c-timer_main">' . "\n";
 		$tag .= '<span id="days"></span>' . $unit['days'] . '<span id="hours"></span>' . esc_html( $unit['hours'] ) . '<span id="min"></span
 >' . esc_html( $unit['min'] ) . '<span id="sec"></span>' . esc_html( $unit['sec'] ) . "\n";
 		$tag .= '</div>' . "\n";
@@ -506,16 +506,16 @@ add_filter(
 			background: <?php echo esc_html( get_option( 'lzcd-bg-color' ) ); ?>;
 			color: <?php echo esc_html( get_option( 'lzcd-color' ) ); ?>;
 		}
-		.c-timer__label {
+		.c-timer_label {
 			font-size: 18px;
 			font-weight: bold;
 			color: <?php echo esc_html( get_option( 'lzcd-label-color' ) ); ?>;
 		}
-		.c-timer__main {
+		.c-timer_main {
 			font-weight: bold;
 			font-size: 16px;
 		}
-		.c-timer__main span{
+		.c-timer_main span{
 			margin-right: 5px;
 			text-align: right;
 			display: inline-block;
@@ -528,13 +528,13 @@ add_filter(
 			.c-timer {
 				max-width: 600px;
 			}
-			.c-timer__label {
+			.c-timer_label {
 				font-size: 20px;
 			}
-			.c-timer__main {
+			.c-timer_main {
 				font-size: 20px;
 			}
-			.c-timer__main span{
+			.c-timer_main span{
 				font-size: 40px;
 			}
 		}
