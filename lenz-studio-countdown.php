@@ -3,7 +3,7 @@
  * Plugin Name: LZ Count Down Timer
  * Description: カウントダウンタイマーです。ショートコードで追加できます。
  * Author: 銀ねこアトリエ
- * Version: 1.2.3
+ * Version: 1.2.4
  * Author URI: https://ginneko-atelier.com
  *
  * @package Count Down Timer
