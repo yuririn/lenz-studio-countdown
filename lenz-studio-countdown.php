@@ -33,10 +33,10 @@ function lz_redirect() {
 	$now = strtotime( wp_date( 'Y-m-d H:i:s' ) );
 
 	global $post;
-	if ( has_shortcode( $post->post_content, 'show_timer' ) && $end_date <= $now ) {
-		wp_safe_redirect( esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ) );
-		exit;
-	}
+	// if ( has_shortcode( $post->post_content, 'show_timer' ) && $end_date <= $now ) {
+	// 	wp_safe_redirect( esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ) );
+	// 	exit;
+	// }
 }
 add_action( 'template_redirect', 'lz_redirect' );
 
