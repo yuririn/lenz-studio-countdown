@@ -43,4 +43,4 @@ Upgrade php7.4.*
 = 1.2.5 =
 *Release Date - 22 July 2021*
 Added controller for setting timer page.
-Update page status from public to private.
+Added a function updating the page status of private.
