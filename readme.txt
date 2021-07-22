@@ -39,3 +39,7 @@ delete donation button
 = 1.2.4 =
 *Release Date - 15 July 2021*
 Upgrade php7.4.*
+
+= 1.2.5 =
+*Release Date - 22 July 2021*
+add controller for setting timer page.

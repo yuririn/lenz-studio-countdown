@@ -3,11 +3,11 @@
  * Plugin Name: LZ Count Down Timer
  * Description: カウントダウンタイマーです。ショートコードで追加できます。
  * Author: 銀ねこアトリエ
- * Version: 1.2.4
+ * Version: 1.2.5
  * Author URI: https://ginneko-atelier.com
  *
  * @package Count Down Timer
- * @version 1.2.4
+ * @version 1.2.5
  */
 /*
  * プラグインパス
@@ -33,10 +33,10 @@ function lz_redirect() {
 	$now = strtotime( wp_date( 'Y-m-d H:i:s' ) );
 
 	global $post;
-	// if ( has_shortcode( $post->post_content, 'show_timer' ) && $end_date <= $now ) {
-	// 	wp_safe_redirect( esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ) );
-	// 	exit;
-	// }
+	if ( $post->ID === (int)get_option('page-id') && ($end_date <= $now || get_option( 'lzcd-date' )=== false) ) {
+		wp_safe_redirect( esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ) );
+		exit;
+	}
 }
 add_action( 'template_redirect', 'lz_redirect' );
 
@@ -84,6 +84,7 @@ add_action( 'admin_menu', 'lz_count_down_menu_page' );
 function lz_value() {
 	return array(
 		'date'         => 'lzcd-date',
+		'page_id'      => 'page-id',
 		'label'        => 'name="lzcd-label-first',
 		'redirect_url' => 'lzcd-redirecturl',
 		'font'         => 'lzcd-font',
@@ -284,10 +285,47 @@ function add_lz_count_down_menu_page() {
 						</td>
 					</tr>
 					<tr class="row">
+						<th>リダイレクト元</th>
+						<td>
+							<select name="page-id">
+							<?php
+								$args = array(
+									'post_type' => 'any',
+									'posts_per_page' => -1,
+									'post_status'    => 'publish',
+								);
+
+								$pages = new WP_Query( $args );
+								if ( $pages->have_posts() ) :
+									while ( $pages->have_posts() ) :
+										$pages->the_post();
+										$id = get_the_ID();
+										$title = get_the_title();
+
+										$selected = ($id === (int)get_option('page-id')) ? ' selected': '';
+
+							?>
+							<option value="<?php echo esc_html( $id ); ?>"<?php echo esc_html( $selected )?>><?php echo esc_html( $id . ' : ' . $title ); ?></option>
+							<?php
+								endwhile;
+							endif;
+							?>
+
+							</select>
+							<p><small>※ リダイレクト元のページを選んでください。</small></p>
+							<?php if( get_option('page-id') ):
+								$redirect_page_title = get_the_title(get_option('page-id'));
+								$redirect_page_link = get_permalink(get_option('page-id'));
+								?>
+								現在設定されているページ：<a href="<?php echo esc_url( $redirect_page_link); ?>" target="_blank"><?php echo esc_html( $redirect_page_title ); ?></a>
+							<?php endif;?>
+						</td>
+					</tr>
+					<tr class="row">
 						<th>リダイレクト先</th>
 						<td>
 							<input type="text" placeholder="https://example.com/contact/" style="min-width:80%" name="lzcd-redirecturl" value="<?php echo esc_html( get_option( 'lzcd-redirecturl' ) ); ?>">
-							<p><small>※ 他ドメインへの遷移はできません。<br>※ リダイレクト先はデフォルトでトップページに設定されています。<br>※ カウントダウンタイマー設置箇所とリダイレクト先が一緒だと無限リダイレクトが起きますので、ご注意ください。</small></p>
+							<p><small>※ 他ドメインへの遷移はできません。<br>※ リダイレクト先はデフォルトでトップページに設定されています。<br>※ カウントダウンタイマー設置箇所とリダイレクト先が一緒だと<strong style="color:red">無限リダイレクト</strong>が起きますので、ご注意ください。</small></p>
 						</td>
 					</tr>
 					<tr class="row">
