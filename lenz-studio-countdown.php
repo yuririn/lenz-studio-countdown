@@ -31,9 +31,15 @@ function lz_redirect() {
 	$end_date = strtotime( get_option( 'lzcd-date' ) );
 	// $now      = strtotime( wp_date( 'Y-m-d H:i:s', strtotime( '-1 hour' ) ) );
 	$now = strtotime( wp_date( 'Y-m-d H:i:s' ) );
+	$id = (int)get_option('page-id');
 
 	global $post;
-	if ( $post->ID === (int)get_option('page-id') && ($end_date <= $now || get_option( 'lzcd-date' )=== false) ) {
+
+	if ( (!is_front_page() && !is_home() && !is_archive()) && $post->ID === $id && ($end_date <= $now || get_option( 'lzcd-date' ) === false) ) {
+		if( 'private' !== get_post_status( $id )){
+			// 非公開に
+			wp_update_post(array( 'ID'=> $id,'post_status'=> 'private' ));
+		}
 		wp_safe_redirect( esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ) );
 		exit;
 	}
@@ -85,6 +91,7 @@ function lz_value() {
 	return array(
 		'date'         => 'lzcd-date',
 		'page_id'      => 'page-id',
+		'exept'        => 'exept',
 		'label'        => 'name="lzcd-label-first',
 		'redirect_url' => 'lzcd-redirecturl',
 		'font'         => 'lzcd-font',
@@ -205,6 +212,9 @@ add_action(
 				contentType: false,
 			}).done(function(data, textStatus, jqXHR) {
 				$('.status').html('<div class="notice notice-success is-dismissible"><p><strong>設定を保存しました。</strong></p><button type="button" class="notice-dismiss"></button></div>');
+				$page = $('<a target="_blank">').attr('href', $('[name=page-id] option:selected').attr('data-url')).text($('[name=page-id] option:selected').text());
+				console.log($page)
+				$('#page-id').empty().append( 'カウントダウン設置ページ：' ).append( $page )
 			}).fail(function() {
 				$('.status').html('<div class="notice notice-error is-dismissible"><p><strong>設定の保存を失敗しました。</strong></p><button type="button" class="notice-dismiss"></button></div>');
 			});
@@ -301,30 +311,34 @@ function add_lz_count_down_menu_page() {
 										$pages->the_post();
 										$id = get_the_ID();
 										$title = get_the_title();
+										$link = get_permalink();
 
 										$selected = ($id === (int)get_option('page-id')) ? ' selected': '';
 
 							?>
-							<option value="<?php echo esc_html( $id ); ?>"<?php echo esc_html( $selected )?>><?php echo esc_html( $id . ' : ' . $title ); ?></option>
+							<option value="<?php echo esc_html( $id ); ?>"<?php echo esc_html( $selected )?> data-url="<?php echo esc_url( $link )?>"><?php echo esc_html( $title ); ?></option>
 							<?php
 								endwhile;
 							endif;
 							?>
 
 							</select>
-							<p><small>※ リダイレクト元のページを選んでください。</small></p>
+							<p><small>※ カウントダウン終了後に別ページへリダイレクトは発生しますが予期せぬページでリダイレクトが起こることがあります。<br><strong>リダイレクト元</strong>を設定しておくことで、キャンペーン終了後にページを非公開状態になり、不具合が起こりにくくなります。</small></p>
+							<p id="page-id">カウントダウン設置ページ：
 							<?php if( get_option('page-id') ):
-								$redirect_page_title = get_the_title(get_option('page-id'));
-								$redirect_page_link = get_permalink(get_option('page-id'));
+								$redirect_page_title = get_the_title( get_option( 'page-id' ) );
+								$redirect_page_link = get_permalink( get_option( 'page-id' ) );
+								$redirect_page_status = ( 'private' === get_post_status( get_option( 'page-id' ) ) ) ? '(非公開)':'';
 								?>
-								現在設定されているページ：<a href="<?php echo esc_url( $redirect_page_link); ?>" target="_blank"><?php echo esc_html( $redirect_page_title ); ?></a>
+								<a href="<?php echo esc_url( $redirect_page_link ); ?>" target="_blank"><?php echo esc_html( $redirect_page_title . $redirect_page_status); ?></a>
 							<?php endif;?>
+							</p>
 						</td>
 					</tr>
 					<tr class="row">
 						<th>リダイレクト先</th>
 						<td>
-							<input type="text" placeholder="https://example.com/contact/" style="min-width:80%" name="lzcd-redirecturl" value="<?php echo esc_html( get_option( 'lzcd-redirecturl' ) ); ?>">
+							<input type="text" placeholder="https://example.com/contact/" style="min-width:80%" name="lzcd-redirecturl" value="<?php echo esc_html( get_option( 'lzcd-xclusion' ) ); ?>">
 							<p><small>※ 他ドメインへの遷移はできません。<br>※ リダイレクト先はデフォルトでトップページに設定されています。<br>※ カウントダウンタイマー設置箇所とリダイレクト先が一緒だと<strong style="color:red">無限リダイレクト</strong>が起きますので、ご注意ください。</small></p>
 						</td>
 					</tr>
@@ -406,7 +420,6 @@ function add_lz_count_down_menu_page() {
 						</td>
 					</tr>
 				</table>
-
 			</section>
 		</form>
 		<?php
@@ -468,7 +481,9 @@ add_filter(
 	'wp_footer',
 	function() {
 		global $post;
-		if ( has_shortcode( $post->post_content, 'show_timer' ) && $end_date >= $now ) {
+		$id = (int)get_option('page-id');
+
+		if ( (!is_front_page() && !is_home() && !is_archive()) && ( $post->ID === $id || has_shortcode( $post->post_content, 'show_timer' )) && ($end_date <= $now || get_option( 'lzcd-date' ) === false) ) {
 			?>
 		<script>
 			const goal = new Date("<?php echo get_option( 'lzcd-date' ); ?>");
@@ -508,7 +523,7 @@ add_filter(
 				}
 				?>
 				setTimeout(function(){
-					location.href= '<?php echo esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ); ?>';
+					// location.href= '<?php echo esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ); ?>';
 				},1000);
 			}
 		}
