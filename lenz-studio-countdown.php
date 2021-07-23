@@ -3,11 +3,11 @@
  * Plugin Name: LZ Count Down Timer
  * Description: カウントダウンタイマーです。ショートコードで追加できます。
  * Author: 銀ねこアトリエ
- * Version: 1.2.5
+ * Version: 1.2.6
  * Author URI: https://ginneko-atelier.com
  *
  * @package Count Down Timer
- * @version 1.2.5
+ * @version 1.2.6
  */
 /*
  * プラグインパス
@@ -38,11 +38,17 @@ function lz_redirect() {
 
 	if ( (!is_front_page() && !is_home() && !is_archive()) && $post->ID === $id && ($end_date <= $now || get_option( 'lzcd-date' ) === false) ) {
 		if( 'private' !== get_post_status( $id )){
-			// 非公開に
-			wp_update_post(array( 'ID'=> $id,'post_status'=> 'private' ));
+			wp_update_post( array( 'ID'=> $id, 'post_status' => 'private' ) );
 		}
 		wp_safe_redirect( esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ) );
 		exit;
+	}
+
+	// リダイレクトページの登録があって公開状態の場合は非公開に
+	if ( ($end_date <= $now || get_option( 'lzcd-date' ) === false) && $id ) {
+		if( 'private' !== get_post_status( $id )){
+			wp_update_post( array( 'ID'=> $id, 'post_status' => 'private' ) );
+		}
 	}
 }
 add_action( 'template_redirect', 'lz_redirect' );
@@ -199,6 +205,14 @@ add_action(
 			$('.status div').remove();
 			return false;
 		})
+		$('[data-tab]').on('click', function(){
+			console.log($(this).attr('data-tab'));
+			tab = $(this).attr('data-tab');
+			$('[data-content]').hide();
+			$('[data-tab]').removeClass('current');
+			$('[data-tab=' + tab + ']').addClass('current');
+			$('[data-content=' + tab + ']').show();
+		});
 		$('#saveData').submit(function(event){
 			event.preventDefault();
 			const fd = new FormData( this );
@@ -298,54 +312,43 @@ function add_lz_count_down_menu_page() {
 							<input type="text" style="min-width:80%" name="lzcd-label-last" value="<?php echo esc_html( get_option( 'lzcd-label-last' ) ); ?>">
 						</td>
 					</tr>
-					<tr class="row">
-						<th>リダイレクト</th>
-						<td>
-							<p>リダイレクトさせる場合は、<strong style="color:red">リダイレクト元ページ</strong>を必ず選択してください。</p>
-							<h4>リダイレクト元</h4>
-							<select name="page-id">
-								<option value="">--</option>
-							<?php
-								$args = array(
-									'post_type' => 'any',
-									'posts_per_page' => -1,
-									'post_status'    => 'publish',
-								);
+				</table>
+				<style>
+					.tabNav {
+						width: 90%;
+						min-width: 90%;
+						display: flex;
+						justify-content: start;
+						border-bottom: 1px solid #aaa;
+						padding: 0;
+					}
+					.tabNav li {
+						margin: -1px;
+						margin-left: 5px;
+						width: 150px;
+						border-radius: 5px;
+						text-align: center;
+						font-weight: bold;
+						padding: 8px 5px;
+						border-bottom-right-radius: 0;
+						border-bottom-left-radius: 0;
+						border: 1px solid #aaa;
+					}
+					.tabNav li.current {
+						color: #2271b1;
+						border-color:  #2271b1;
+						border-bottom-color: #eee;
+					}
+					[data-content="tab2"]{
+						display: none;
+					}
+				</style>
+				<ul class="tabNav">
+					<li class="current" data-tab="tab1">スタイル設定</li>
+					<li data-tab="tab2">リダイレクト設定</li>
+				</ul>
 
-								$pages = new WP_Query( $args );
-								if ( $pages->have_posts() ) :
-									while ( $pages->have_posts() ) :
-										$pages->the_post();
-										$id = get_the_ID();
-										$title = get_the_title();
-										$link = get_permalink();
-
-										$selected = ($id === (int)get_option('page-id')) ? ' selected': '';
-
-							?>
-							<option value="<?php echo esc_html( $id ); ?>"<?php echo esc_html( $selected )?> data-url="<?php echo esc_url( $link )?>"><?php echo esc_html( $title ); ?></option>
-							<?php
-								endwhile;
-							endif;
-							?>
-
-							</select>
-							<p><small>※ カウントダウン終了後に別ページへリダイレクトは発生しますが予期せぬページでリダイレクトが起こることがあります。<br><strong>リダイレクト元</strong>を設定しておくことで、キャンペーン終了後にページを非公開状態になります。<br>※ 再度公開したい場合は、手動でショートコードを取り除き公開に戻してください。</small></p>
-							<p id="page-id" style="background:#fff; border-radius: 5px;padding:5px;min-width:80%; width:80%;box-sizing:border-box" >カウントダウン設置ページ：
-							<?php if( get_option('page-id') ):
-								$redirect_page_title = get_the_title( get_option( 'page-id' ) );
-								$redirect_page_link = get_permalink( get_option( 'page-id' ) );
-								$redirect_page_status = ( 'private' === get_post_status( get_option( 'page-id' ) ) ) ? '(非公開)':'';
-								?>
-								<a href="<?php echo esc_url( $redirect_page_link ); ?>" target="_blank"><?php echo esc_html( $redirect_page_title . $redirect_page_status); ?></a>
-							<?php endif;?>
-							</p>
-							<h4>リダイレクト先</h4>
-
-						<input type="text" placeholder="https://example.com/contact/" style="min-width:80%" name="lzcd-redirecturl" value="<?php echo esc_html( get_option( 'lzcd-xclusion' ) ); ?>">
-							<p><small>※ 他ドメインへの遷移はできません。<br>※ リダイレクト先はデフォルトでトップページに設定されています。<br>※ カウントダウンタイマー設置箇所とリダイレクト先が一緒だと<strong style="color:red">無限リダイレクト</strong>が起きますので、ご注意ください。</small></p>
-						</td>
-					</tr>
+				<table class="form-table" role="presentation" data-content="tab1">
 					<tr class="row">
 						<th>フォント</th>
 						<td>
@@ -421,6 +424,57 @@ function add_lz_count_down_menu_page() {
 						<td colspan="2">
 							<p>出力する要素の構造は次の通りです（アンダースコアは1つです）。</p>
 							<p><img src="<?php echo plugin_dir_url( __FILE__ ); ?>/img/countdown.jpg" alt="" width="500px" height=""></p>
+						</td>
+					</tr>
+				</table>
+				<table class="form-table" role="presentation" data-content="tab2">
+					<tr class="row">
+						<th>リダイレクト元</th>
+						<td>
+							<p>リダイレクトさせる場合は、<strong style="color:red">リダイレクト元ページ</strong>を必ず選択してください。</p>
+							<select name="page-id">
+								<option value="">--</option>
+							<?php
+								$args = array(
+									'post_type' => 'any',
+									'posts_per_page' => -1,
+								);
+
+								$pages = new WP_Query( $args );
+								if ( $pages->have_posts() ) :
+									while ( $pages->have_posts() ) :
+										$pages->the_post();
+										$id = get_the_ID();
+										$title = get_the_title();
+										$link = get_permalink();
+
+										$selected = ($id === (int)get_option('page-id')) ? ' selected': '';
+
+							?>
+							<option value="<?php echo esc_html( $id ); ?>"<?php echo esc_html( $selected )?> data-url="<?php echo esc_url( $link )?>"><?php echo esc_html( $title ); ?></option>
+							<?php
+								endwhile;
+							endif;
+							?>
+
+							</select>
+							<p><small>※ <strong>リダイレクト元</strong>を設定しておくと、終了後ページが非公開状態になります。<br>※ 再度公開したい場合は、手動でショートコードを取り除き公開に戻してください。</small></p>
+							<p id="page-id" style="background:#fff; border-radius: 5px;padding:5px;min-width:80%; width:80%;box-sizing:border-box" >カウントダウン設置ページ：
+							<?php if( get_option('page-id') ):
+								$redirect_page_title = get_the_title( get_option( 'page-id' ) );
+								$redirect_page_link = get_permalink( get_option( 'page-id' ) );
+								$redirect_page_status = ( 'private' === get_post_status( get_option( 'page-id' ) ) ) ? '(非公開)':'';
+								?>
+								<a href="<?php echo esc_url( $redirect_page_link ); ?>" target="_blank"><?php echo esc_html( $redirect_page_title . $redirect_page_status); ?></a>
+							<?php endif;?>
+							</p>
+						</td>
+					</tr>
+					<tr class="row">
+							<th>リダイレクト先</th>
+							<td>
+							<input type="text" placeholder="https://example.com/contact/" style="min-width:80%" name="lzcd-redirecturl" value="<?php echo esc_html( get_option( 'lzcd-xclusion' ) ); ?>">
+							<p><small>※ 他ドメインへの遷移はできません。<br>※ リダイレクト先はデフォルトでトップページに設定されています。<br>※ カウントダウンタイマー設置箇所とリダイレクト先が一緒だと<strong style="color:red">無限リダイレクト</strong>が起きますので、ご注意ください。</small></p>
 						</td>
 					</tr>
 				</table>
@@ -525,7 +579,11 @@ add_filter(
 				"<?php echo esc_html( get_option( 'lzcd-label-last' ) ); ?>";
 				<?php
 				}
+
 				if($post->ID === $id ){
+					if( 'private' !== get_post_status( $id )){
+						wp_update_post( array( 'ID'=> $id, 'post_status' => 'private' ) );
+					}
 				?>
 				setTimeout(function(){
 					location.href= '<?php echo esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ); ?>';
