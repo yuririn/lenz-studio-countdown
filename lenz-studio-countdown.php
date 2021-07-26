@@ -45,7 +45,6 @@ function lz_redirect() {
 		}
 		//404で対象ページと同じURLを含む場合リダイレクト
 		else if( is_404() && strpos( $url, $_SERVER['REQUEST_URI'] ) !== false) {
-			wp_update_post( array( 'ID'=> $id, 'post_status' => 'private' ) );
 			wp_safe_redirect( esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ) );
 			exit;
 		}
