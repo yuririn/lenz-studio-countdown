@@ -46,5 +46,9 @@ Added controller for setting timer page.
 Added a function updating the page status of private.
 
 = 1.2.6 =
-*Release Date - 23 July 2021*
+*Release Date - 24 July 2021*
 Change UI.
+
+= 1.2.7 =
+*Release Date - 24 July 2021*
+Fixed redirect.

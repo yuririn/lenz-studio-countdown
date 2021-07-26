@@ -3,11 +3,11 @@
  * Plugin Name: LZ Count Down Timer
  * Description: カウントダウンタイマーです。ショートコードで追加できます。
  * Author: 銀ねこアトリエ
- * Version: 1.2.6
+ * Version: 1.2.7
  * Author URI: https://ginneko-atelier.com
  *
  * @package Count Down Timer
- * @version 1.2.6
+ * @version 1.2.7
  */
 /*
  * プラグインパス
@@ -32,23 +32,29 @@ function lz_redirect() {
 	// $now      = strtotime( wp_date( 'Y-m-d H:i:s', strtotime( '-1 hour' ) ) );
 	$now = strtotime( wp_date( 'Y-m-d H:i:s' ) );
 	$id = get_option('page-id') ? (int)get_option('page-id') :false;
-
+	$url = get_option('page-link') ? get_option('page-link	') :false;
 
 	global $post;
-
-	if ( (!is_front_page() && !is_home() && !is_archive()) && $post->ID === $id && ($end_date <= $now || get_option( 'lzcd-date' ) === false) ) {
-		if( 'private' !== get_post_status( $id )){
+	// リダイレクト条件：投稿の登録があり、今がタイマー終了時間を過ぎている
+	if( $id && $end_date <= $now){
+		// 非公開にした上でリダイレクト
+		if( 'private' !== get_post_status( $id ) ) {
 			wp_update_post( array( 'ID'=> $id, 'post_status' => 'private' ) );
+			wp_safe_redirect( esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ) );
+			exit;
 		}
-		wp_safe_redirect( esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ) );
-		exit;
-	}
-
-	// リダイレクトページの登録があって公開状態の場合は非公開に
-	if ( ($end_date <= $now || get_option( 'lzcd-date' ) === false) && $id ) {
-		if( 'private' !== get_post_status( $id )){
+		//404で対象ページと同じURLを含む場合リダイレクト
+		else if( is_404() && strpos( $url, $_SERVER['REQUEST_URI'] ) !== false) {
 			wp_update_post( array( 'ID'=> $id, 'post_status' => 'private' ) );
+			wp_safe_redirect( esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ) );
+			exit;
 		}
+		//終了後はページにアクセスされた場合にリダイレクト
+		if ( $post->ID === $id && !is_front_page() && !is_home() && !is_archive()){
+			wp_safe_redirect( esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ) );
+			exit;
+		}
+
 	}
 }
 add_action( 'template_redirect', 'lz_redirect' );
@@ -98,6 +104,7 @@ function lz_value() {
 	return array(
 		'date'         => 'lzcd-date',
 		'page_id'      => 'page-id',
+		'page_link'    => 'page-link',
 		'exept'        => 'exept',
 		'label'        => 'name="lzcd-label-first',
 		'redirect_url' => 'lzcd-redirecturl',
@@ -230,8 +237,10 @@ add_action(
 				if($('[name=page-id] option:selected').text() !== '--'){
 					$page = $('<a target="_blank">').attr('href', $('[name=page-id] option:selected').attr('data-url')).text($('[name=page-id] option:selected').text());
 					$('#page-id').empty().append( 'カウントダウン設置ページ：' ).append( $page );
+					$('[name=page-link]').val($('[name=page-id] option:selected').attr('data-url'));
 				}else {
 					$('#page-id').empty().append( 'カウントダウン設置ページ：' );
+					$('[name=page-link]').val('');
 				}
 			}).fail(function() {
 				$('.status').html('<div class="notice notice-error is-dismissible"><p><strong>設定の保存を失敗しました。</strong></p><button type="button" class="notice-dismiss"></button></div>');
@@ -448,26 +457,30 @@ function add_lz_count_down_menu_page() {
 										$title = get_the_title();
 										$link = get_permalink();
 
-										$selected = ($id === (int)get_option('page-id')) ? ' selected': '';
+										$selected = ($id === (int) get_option('page-id')) ? ' selected': '';
 
 							?>
 							<option value="<?php echo esc_html( $id ); ?>"<?php echo esc_html( $selected )?> data-url="<?php echo esc_url( $link )?>"><?php echo esc_html( $title ); ?></option>
 							<?php
 								endwhile;
 							endif;
+
 							?>
 
 							</select>
-							<p><small>※ <strong>リダイレクト元</strong>を設定しておくと、終了後ページが非公開状態になります。<br>※ 再度公開したい場合は、手動でショートコードを取り除き公開に戻してください。</small></p>
+							<p><small>※ <strong>リダイレクト元</strong>を設定しておくと、終了後ページが非公開状態になります。<br>※ 再度公開したい場合は、手動でショートコードを取り除き公開に戻してください。<br>※ 固定ページの場合、リダイレクト設定した下層ページもリダイレクト対象になります。</small></p>
 							<p id="page-id" style="background:#fff; border-radius: 5px;padding:5px;min-width:80%; width:80%;box-sizing:border-box" >カウントダウン設置ページ：
-							<?php if( get_option('page-id') ):
+								<?php if( get_option('page-id') ):
 								$redirect_page_title = get_the_title( get_option( 'page-id' ) );
 								$redirect_page_link = get_permalink( get_option( 'page-id' ) );
 								$redirect_page_status = ( 'private' === get_post_status( get_option( 'page-id' ) ) ) ? '(非公開)':'';
 								?>
 								<a href="<?php echo esc_url( $redirect_page_link ); ?>" target="_blank"><?php echo esc_html( $redirect_page_title . $redirect_page_status); ?></a>
-							<?php endif;?>
+
+								<?php endif;
+								?>
 							</p>
+							<input type="hidden" name="page-link" value="<?php echo esc_url( $redirect_page_link ); ?>">
 						</td>
 					</tr>
 					<tr class="row">
@@ -579,11 +592,7 @@ add_filter(
 				"<?php echo esc_html( get_option( 'lzcd-label-last' ) ); ?>";
 				<?php
 				}
-
-				if($post->ID === $id ){
-					if( 'private' !== get_post_status( $id )){
-						wp_update_post( array( 'ID'=> $id, 'post_status' => 'private' ) );
-					}
+				if( $id ){
 				?>
 				setTimeout(function(){
 					location.href= '<?php echo esc_url( get_option( 'lzcd-redirecturl' ) ? get_option( 'lzcd-redirecturl' ) : home_url( '/' ) ); ?>';
